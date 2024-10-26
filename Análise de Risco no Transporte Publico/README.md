@@ -1,4 +1,4 @@
-![Logo do Projeto](Analise_de_Risco_no_Transporte_Publico/acidente.png)
+![Logo do Projeto](Análise de Risco no Transporte Publico/acidente.png)
 
 # Formação Cientista de Dados da Data Science Academy - Projeto com Feedback 3
 

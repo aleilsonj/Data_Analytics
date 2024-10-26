@@ -1,4 +1,6 @@
-![Logo do Projeto](Análise de Risco no Transporte Publico/acidente.png)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1bf86df6-6747-45a4-bd90-fc7f347938c7" alt="acidente" style="width: 900px; height: 250px;">
+</p>
 
 # Formação Cientista de Dados da Data Science Academy - Projeto com Feedback 3
 

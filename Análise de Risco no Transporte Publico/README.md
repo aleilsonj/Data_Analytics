@@ -47,7 +47,23 @@ A consulta acima revela o número de vítimas por faixa etária:
 - **Desconhecido**: O segundo maior grupo, com **7.135 vítimas** cuja faixa etária não foi informada.
 - **Jovens**: O grupo que menos sofreu incidentes, contabilizando apenas **319 vítimas**.
 
+
 Analisando o gráfico de barras, nota-se que as vítimas adultas foram as mais numerosas, superando a marca de 10.000. Por outro lado, os grupos de idosos e crianças apresentaram menos de 3.000 vítimas cada. Os jovens, por sua vez, foram os que menos incidentes registraram durante o período de estudo.
+
+#### Gráfico 3
+**Qual o percentual de incidentes por tipo de evento (Incident Event Type)?**
+
+Observando os resultados sobre o percentual por tipo de incidente na query 
+acima, vemos:
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/aac9d0b1-c14f-49d2-99c2-1d12021a96ed" alt="Accidents by gender" style="width: 650px; height: auto;">
+</p>
+
+- Slip Trip Falls - que representam os incidentes como escorregões, tropeços ou quedas. Esses são aproximadamente 30% do total de incidentes. 
+- Onboard Injuries - São as lesões que ocorreram a bordo do veículo, que nesse caso são os transportes públicos. Esse tipo de incidente representa aproximadamente 28% do total. 
+- Robbery e Fire - são os incidentes com menor ocorrência. O primeiro se refere aos roubos com ameaças ou uso de força e o segundo faz referência a incidentes com fogo.Eventos com algum tipo de iolência física são os com menores ocorrências.
+- Os acidentes com escorregões, tropeços e quedas são os que apresentam a maior contagem de vítimas, seguidos pelos acidentes que correm com as vítimas que estão a bordo do transporte público, os danos pessoais e os acidentes por colisões.
 
 ## Conclusão
 A análise dos dados dos acidentes no transporte público de Londres permitiu identificar que a maioria das vítimas são mulheres e que os acidentes mais frequentes são escorregões, tropeços e quedas. Além disso, foi possível observar que o ano de 2017 teve um número maior de incidentes em comparação com os anos anteriores, com picos em junho e julho. Esses resultados podem ser úteis para o desenvolvimento de medidas preventivas mais eficazes para garantir a segurança dos usuários do transporte público.

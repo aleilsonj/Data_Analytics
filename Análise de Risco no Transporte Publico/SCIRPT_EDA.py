@@ -87,18 +87,35 @@ E cerca de 3.602 vítimas não possuem informação de gênero.
 '''
 
 # %% Plot 1 Qual a quantidade de incidentes por gênero?
+# Criar o gráfico de barras horizontal
+plt.figure(figsize=(10, 6))
+plt.bar(resultado['Sex'], resultado['Victims'], color=['pink', 'blue', 'gray'])
 
-# Aplicando o tema "ggplot"
-style.use('ggplot')
-# Criando a figura e definindo o tamanho 
-fig, ax = plt.subplots(figsize=(12, 6))
-# Criando o gráfico de pizza com labels e tamanho da fonte
-ax.pie(resultado.Victims, labels=resultado.Sex, autopct='%1.2f%%', textprops={'fontsize': 14})
-# Adicionando um título ao gráfico
-ax.set_title('Distribution of victims by gender')
-# Exibindo o gráfico
+
+# Remover as linhas de grade
+plt.grid(False)
+
+# Adicionar o título
+plt.title('Accidents by gender')
+
+# Remover o eixo y, ticks e labels
+plt.gca().axes.yaxis.set_visible(False)
+
+# Remover eixo x, ticks e labels
+plt.gca().axes.xaxis.set_visible(True)
+
+# Remover as bordas (spines) do gráfico
+for spine in plt.gca().spines.values():
+    spine.set_visible(False)
+
+# Adicionar os valores de contagem no topo de cada barra
+for index, value in enumerate(resultado['Victims']):
+    plt.text(index, value + 1, str(value), ha='center', va='bottom')
+
+# Salvar o gráfico como imagem
+plt.savefig('Accidents by gender.png', format='png', dpi=300, bbox_inches='tight')
+
 plt.show()
-
 '''
 Analisando o gráfico de pizza acima, fica claro que a maior parte das vítimas 
 são do gênero feminino, representando 51,16% dos gêneros das vítimas que 
@@ -127,19 +144,47 @@ resultado2 = pysqldf(query2)
 # Exibindo o resultado
 print(resultado2)
 
+# %%
 # Com Pandas
 df['Victims Age'].value_counts()
 
-# Criando gráfico
-plt.subplots(figsize=(12, 8))
-sns.set_style("whitegrid")
-sns.barplot(x='Age Group', y='Victims', data=resultado2, palette='Spectral_r')
-# Adicionando um título e legendas
-plt.title('Distribution of victims by age group')
-plt.xlabel('Age group')
-plt.ylabel('Number of victims')
+#%%
+# Criar o gráfico de barras horizontal
+plt.figure(figsize=(10, 6))
+plt.bar(resultado2['Age Group'],
+        resultado2['Victims'],
+        color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'])
+
+# Definir a cor de fundo como branco
+plt.gca().set_facecolor('white')
+
+# Remover as linhas de grade
+plt.grid(False)
+
+# Adicionar o título
+plt.title('Victims by Age')
+
+# Remover o eixo y, ticks e labels
+plt.gca().axes.yaxis.set_visible(False)
+
+# Remover eixo x, ticks e labels
+plt.gca().axes.xaxis.set_visible(True)
+
+# Remover as bordas (spines) do gráfico
+for spine in plt.gca().spines.values():
+    spine.set_visible(False)
+
+# Adicionar os valores de contagem no topo de cada barra
+for index, value in enumerate(resultado2['Victims']):
+    plt.text(index, value + 1, str(value), ha='center', va='bottom')
+
+# Salvar o gráfico como imagem
+plt.savefig('Victims by Age.png', format='png', dpi=300, bbox_inches='tight')
+
+# Exibir o gráfico
 plt.show()
 
+# %%
 '''
 É possível ver no resultado da query acima o número de vítimas por faixa etária:
 
@@ -179,24 +224,43 @@ resultado3 = pysqldf(query3)
 # Exibindo os resultados
 print(resultado3)
 
-# Com pandas
-contagem = df['Incident Event Type'].value_counts()
-percentual = df['Incident Event Type'].value_counts(normalize=True).round(4)*100
+# %%
 
-result3 = pd.concat([contagem, percentual], axis=1)
-result3.columns = ['contagem', 'percentual']
-result3
+# Ordenando o DataFrame do maior para o menor em relação à coluna 'Percentual'
+resultado3 = resultado3.sort_values(by='Percentual', ascending=True)
 
-# Criando o gráfico de barras horizontais
-plt.subplots(figsize=(12, 8))
-sns.set_style("whitegrid")
-sns.barplot(x='Count', y='Incident Event Type', data=resultado3, palette='Spectral_r')
-# Adicionando rótulos e título
-plt.xlabel('Count')
-plt.ylabel('Incident Event Type')
-plt.title('Count of Incident Event Types')
-# Exibindo o gráfico
+# %% Plot 3
+
+# Criando uma coloração baseada nos percentuais
+colors = plt.cm.Reds(np.linspace(0.3, 1, len(resultado3)))
+
+# Criando o gráfico
+plt.figure(figsize=(10, 6))
+plt.barh(resultado3['Incident Event Type'], resultado3['Percentual'], color=colors)
+plt.xlabel('Porcentagem (%)')
+plt.title('Incident Event Type')
+plt.xlim(0, 35)  # Ajuste o limite do eixo x se necessário
+
+# Remover o eixo y, ticks e labels
+plt.gca().axes.yaxis.set_visible(True)
+
+# Remover eixo x, ticks e labels
+plt.gca().axes.xaxis.set_visible(True)
+
+# Remover as bordas (spines) do gráfico
+for spine in plt.gca().spines.values():
+    spine.set_visible(False)
+
+# Adicionando os rótulos das porcentagens
+for index, value in enumerate(resultado3['Percentual']):
+    plt.text(value, index, f'{value:.2f}%', va='center')
+
+plt.tight_layout()
+
+# Salvar o gráfico como imagem
+plt.savefig('Incident Event Type.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()
+
 
 '''
 Observando os resultados sobre o percentual por tipo de incidente na query 

@@ -38,7 +38,6 @@ import numpy as np
 from pandasql import sqldf
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib.style as style
 
 # %% Carregando dataframe
 df = pd.read_excel('TFL Bus Safety.xlsx')
@@ -54,7 +53,6 @@ insights valiosos para o desenvolvimento de estratégias de prevenção de
 acidentes no transporte público.
 '''
 # %% Qual a quantidade de incidentes por gênero?
-
 #  Executando consulta SQL
 query = '''
         SELECT 
@@ -74,7 +72,7 @@ resultado = pysqldf(query)
 # Exibindo os resultados
 print(resultado.head())
 
-# Executnado com Pandas
+# %% Executnado com Pandas
 df['Victims Sex'].value_counts()
 
 '''
@@ -91,30 +89,20 @@ E cerca de 3.602 vítimas não possuem informação de gênero.
 plt.figure(figsize=(10, 6))
 plt.bar(resultado['Sex'], resultado['Victims'], color=['pink', 'blue', 'gray'])
 
-
 # Remover as linhas de grade
 plt.grid(False)
-
-# Adicionar o título
 plt.title('Accidents by gender')
-
-# Remover o eixo y, ticks e labels
 plt.gca().axes.yaxis.set_visible(False)
-
-# Remover eixo x, ticks e labels
 plt.gca().axes.xaxis.set_visible(True)
-
-# Remover as bordas (spines) do gráfico
+# Remove as bordas (spines) do gráfico
 for spine in plt.gca().spines.values():
     spine.set_visible(False)
-
-# Adicionar os valores de contagem no topo de cada barra
+# Adiciona os valores de contagem no topo de cada barra
 for index, value in enumerate(resultado['Victims']):
     plt.text(index, value + 1, str(value), ha='center', va='bottom')
 
 # Salvar o gráfico como imagem
 plt.savefig('Accidents by gender.png', format='png', dpi=300, bbox_inches='tight')
-
 plt.show()
 '''
 Analisando o gráfico de pizza acima, fica claro que a maior parte das vítimas 
@@ -149,7 +137,7 @@ print(resultado2)
 df['Victims Age'].value_counts()
 
 #%%
-# Criar o gráfico de barras horizontal
+# gráfico de barras horizontal
 plt.figure(figsize=(10, 6))
 plt.bar(resultado2['Age Group'],
         resultado2['Victims'],
@@ -297,10 +285,9 @@ query4 = '''
     ORDER BY 
         ano, mes
         '''
-
-# Com Pandas
-
 resultado4 = pysqldf(query4)
+# %% Com Pandas
+
 df['Date Of Incident'] = pd.to_datetime(df['Date Of Incident'])
 result = df.groupby([pd.Grouper(key='Date Of Incident', freq='M')])['Date Of Incident'].agg(['count'])
 result = result.reset_index()
@@ -309,23 +296,27 @@ result = result.drop(columns=['Date Of Incident'])
 result = result.rename(columns={'count': 'num_acidentes'})
 result = result[['data', 'num_acidentes']]
 
-# Definindo o tema
-sns.set_style("whitegrid")
-# Criando o gráfico
-fig, ax = plt.subplots(figsize=(12, 8))
-ax.plot(resultado4['data'], resultado4['num_acidentes'])
-# Definindo o título e rótulos nos eixos
-ax.set_title('Evolving accidents over time')
-ax.set_xlabel('Date')
-ax.set_ylabel('Number of accidents')
-# Personalizando o eixo x
-ax.set_xticks(resultado4.index)
-ax.set_xticklabels(resultado4['data'], rotation=45)
-# Adicionando legenda
-ax.legend(['Number of accidents'])
+# %%
+# Configuração do gráfico
+plt.figure(figsize=(10, 6))
+plt.plot(result['data'], result['num_acidentes'], marker='o',
+         linestyle='-', color='b', label='Valores anuais')
+plt.title('Date Of Incident')
 
+# Rotacionando o label do eixo x
+plt.xticks(rotation=45)
 
+# Removendo apenas os ticks do eixo y, se for o desejado
+plt.gca().axes.yaxis.set_visible(True)
+
+# Removendo apenas os ticks do eixo x, se for o desejado
+plt.gca().axes.xaxis.set_visible(True)
+
+plt.tight_layout()
+# Salvar o gráfico como imagem
+plt.savefig('Date Of Incident.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()
+
 
 '''
 Ao observar o gráfico de linhas sobre a trajetória dos acidentes ao longo do 
@@ -338,7 +329,7 @@ patamares mais altos no número de incidentes, tendo uma tendência crescente a
 partir de janeiro de 2017.
 '''
 
-# %%Quando o incidente foi “Collision Incident” em qual mês houve o maior número de incidentes envolvendo pessoas do sexo feminino?
+# %% Quando o incidente foi “Collision Incident” em qual mês houve o maior número de incidentes envolvendo pessoas do sexo feminino?
 # Executando consulta SQL
 query5 = '''
     SELECT 
@@ -358,24 +349,51 @@ query5 = '''
 
 resultado5 = pysqldf(query5)
 
-# Com Pandas
 
-result5 = df[(df['Victims Sex'] == 'Female') & (df['Incident Event Type'] == 'Collision Incident')]['Date Of Incident'].dt.month.value_counts().sort_index().reset_index().rename(columns={'index': 'mes', 'Date Of Incident': 'contagem'})
+# %% Com Pandas
 
-# Definindo o tema
-sns.set_style("whitegrid")
-# Criando o gráfico
-fig, ax = plt.subplots(figsize=(12, 8))
-ax.plot(resultado5['mes'], resultado5['num_acidentes'])
-# Definindo o título e rótulos nos eixos
-ax.set_title('Incidents involving female individuals')
-ax.set_xlabel('Month')
-ax.set_ylabel('Number of accidents')
-# Adicionando legenda
-ax.legend(['Number of accidents'])
+result5 = df[(df['Victims Sex'] == 'Female') & 
+             (df['Incident Event Type'] == 'Collision Incident')]['Date Of Incident'].dt.month.value_counts().sort_index().reset_index().rename(columns={'index': 'mes', 'Date Of Incident': 'contagem'})
 
+
+# Adicionando uma coluna com os nomes dos meses
+import calendar
+result5['mes_nome'] = result5['mes'].apply(lambda x: calendar.month_name[x])
+# %% plot 5
+# Criar o gráfico de barras horizontal
+plt.figure(figsize=(10, 6))
+plt.bar(result5['mes_nome'], result5['contagem'], color= 'red')
+
+# Remover as linhas de grade
+plt.grid(False)
+
+# Adicionar o título
+plt.title('Female: Collision Incident')
+
+# Rotacionando o label do eixo x
+plt.xticks(rotation=45)
+
+# Remover o eixo y, ticks e labels
+plt.gca().axes.yaxis.set_visible(False)
+
+# Remover eixo x, ticks e labels
+plt.gca().axes.xaxis.set_visible(True)
+
+# Remover as bordas (spines) do gráfico
+for spine in plt.gca().spines.values():
+    spine.set_visible(False)
+
+# Adicionar os valores de contagem no topo de cada barra
+for index, value in enumerate(result5['contagem']):
+    plt.text(index, value + 1, str(value), ha='center', va='bottom')
+    
+plt.tight_layout()
+
+# Salvar o gráfico como imagem
+plt.savefig('FemaleCollisionIncident.png', format='png', dpi=300, bbox_inches='tight')
 
 plt.show()
+
 
 '''
 Durante a maior parte da série observada, o número de incidentes envolvendo 
@@ -400,28 +418,41 @@ query6 = '''
 resultado6 = pysqldf(query6)
 resultado6
 
+# %%
 #Com pandas
 df['Data'] = df['Date Of Incident'].dt.strftime('%m-%Y')
 df['avg_child_incidents'] = np.where(df['Victims Age'] == 'Child', 1.0, 0.0)
 df_grouped = df.groupby([pd.Grouper(key='Date Of Incident', freq='M'), 'Data'])['avg_child_incidents'].mean().reset_index()
 result6 = df_grouped.groupby('Data')['avg_child_incidents'].mean().reset_index().rename(columns={'Data': 'Data', 'avg_child_incidents': 'avg_child_incidents'})
 
-# Definindo o tema
-sns.set_style("whitegrid")
-# Criando o gráfico
-fig, ax = plt.subplots(figsize=(12, 8))
-ax.plot(resultado6['Data'], resultado6['avg_child_incidents'])
-# Definindo o título e rótulos nos eixos
-ax.set_title('Average of child incidents per year and month')
-ax.set_xlabel('Date')
-ax.set_ylabel('Average of incidents')
-# Personalizando o eixo x
-ax.set_xticks(resultado6.index)
-ax.set_xticklabels(resultado6['Data'], rotation=45)
-# Adicionando legenda
-ax.legend(['Average of incidents'])
 
+# %% Plot 6
+# Identificar os valores máximos e mínimos
+max_value = result6['avg_child_incidents'].max()
+min_value = result6['avg_child_incidents'].min()
+max_date = result6.loc[result6['avg_child_incidents'] == max_value, 'Data'].values[0]
+min_date = result6.loc[result6['avg_child_incidents'] == min_value, 'Data'].values[0]
 
+# Configuração do gráfico
+plt.figure(figsize=(10, 6))
+plt.plot(result6['Data'], result6['avg_child_incidents'], marker='o', linestyle='-', color='b', label='Valores anuais')
+plt.title('Children: Average Number of Incidents')
+
+# Rotacionando os rótulos do eixo x
+plt.xticks(rotation=45)
+
+# Anotando os pontos de alta e baixa
+plt.text(max_date, max_value, f'Máximo: {max_value}', ha='center', va='bottom', color='red', fontsize=10)
+plt.text(min_date, min_value, f'Mínimo: {min_value}', ha='center', va='top', color='green', fontsize=10)
+
+# Exibindo os ticks e labels dos eixos x e y
+plt.gca().axes.yaxis.set_visible(True)
+plt.gca().axes.xaxis.set_visible(True)
+
+plt.tight_layout()
+
+# Salvar o gráfico como imagem
+plt.savefig('Children.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()
 
 '''
@@ -453,18 +484,33 @@ resultado7 = pysqldf(query7)
 # Exibindo os resultados
 print(resultado7)
 
-# Com pandas
+# %% Com pandas
 result7 = df[(df['Injury Result Description'] == 'Injuries treated on scene')]['Victims Sex'].value_counts()
 
-# Aplicando o tema
-style.use('ggplot')
-# Criando a figura
-fig, ax = plt.subplots(figsize=(5, 3.5))
-# Criando o gráfico de pizza com labels e o tamanho da fonte
-ax.pie(resultado7["num_acidentes"], labels=resultado7["Victims Sex"], autopct='%1.2f%%', textprops={'fontsize': 14})
-# Adicionando um título ao gráfico
-ax.set_title('Total of On-Site Treated Injury Incidents by Gender')
-# Exibindo o gráfico
+# %%
+plt.figure(figsize=(10, 6))
+plt.bar(resultado7["Victims Sex"], resultado7["num_acidentes"], color=['pink', 'blue', 'gray'])
+plt.title('Total of On-Site Treated Injury Incidents by Gender')
+plt.ylabel('Number of Incidents')
+
+# Remover as linhas de grade
+plt.grid(False)
+# Remover o eixo y, ticks e labels
+plt.gca().axes.yaxis.set_visible(False)
+# Remover eixo x, ticks e labels
+plt.gca().axes.xaxis.set_visible(True)
+# Remover as bordas (spines) do gráfico
+for spine in plt.gca().spines.values():
+    spine.set_visible(False)
+# Adicionar os valores de contagem no topo de cada barra
+for index, value in enumerate(resultado7["num_acidentes"]):
+    plt.text(index, value + 1, str(value), ha='center', va='bottom')
+    
+plt.tight_layout()
+
+# Salvar o gráfico como imagem
+plt.savefig('On-Site Treated.png', format='png', dpi=300, bbox_inches='tight')
+
 plt.show()
 
 '''
@@ -499,21 +545,41 @@ query8 = '''
 
 resultado8 = pysqldf(query8)
 
-# Com pandas
+# %% Com pandas
 result8 = df[(df['Victims Age'] == 'Elderly') & (df['Year'] == 2017)]['Date Of Incident'].value_counts().sort_index()
 
-# Definindo o tema
-sns.set_style("whitegrid")
-# Criando o gráfico
-fig, ax = plt.subplots(figsize=(12, 8))
-ax.plot(resultado8['mes'], resultado8['num_acidentes_Elderly'])
-# Definindo o título e rótulos nos eixos
-ax.set_title('Incidents involving elderly individuals per month in 2017')
-ax.set_xlabel('Month')
-ax.set_ylabel('Number of incidents')
-# Adicionando legenda
-ax.legend(['Incidents elderly'])
+# %%
+# Convertendo a coluna 'mes' para inteiros
+resultado8['mes'] = resultado8['mes'].astype(int)
 
+# Criar a nova coluna 'mes_nome' usando calendar.month_name
+resultado8['mes_nome'] = resultado8['mes'].apply(lambda x: calendar.month_name[x])
+# %% Plot 6
+# Identificar os valores máximos e mínimos
+max_value = resultado8['num_acidentes_Elderly'].max()
+min_value = resultado8['num_acidentes_Elderly'].min()
+max_date = resultado8.loc[resultado8['num_acidentes_Elderly'] == max_value, 'mes'].values[0]
+min_date = resultado8.loc[resultado8['num_acidentes_Elderly'] == min_value, 'mes'].values[0]
+
+# Configuração do gráfico
+plt.figure(figsize=(10, 6))
+plt.plot(resultado8['mes_nome'], resultado8['num_acidentes_Elderly'], marker='o', linestyle='-', color='b', label='Valores anuais')
+plt.title('Incidents involving elderly individuals per month in 2017')
+
+# Rotacionando os rótulos do eixo x
+plt.xticks(rotation=45)
+
+# Anotando os pontos de alta e baixa
+plt.text(max_date, max_value, f'Máximo: {max_value}',
+         ha='center', va='bottom', color='red', fontsize=10)
+plt.text(min_date, min_value, f'Mínimo: {min_value}',
+         ha='center', va='top', color='green', fontsize=10)
+# Exibindo os ticks e labels dos eixos x e y
+plt.gca().axes.yaxis.set_visible(True)
+plt.gca().axes.xaxis.set_visible(True)
+plt.tight_layout()
+# Salvar o gráfico como imagem
+plt.savefig('elderly individuals in 2017.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()
 
 '''
@@ -539,20 +605,31 @@ query9 = '''
             DESC
    
 '''
-
+# %%
 resultado9 = pysqldf(query9)
 
+#%%
+# Ordenando os dados do maior para o menor
+resultado9 = resultado9.sort_values(by='num_acidentes', ascending=True)
+# Definindo uma paleta de cores
+palette = sns.color_palette("Spectral_r", n_colors=len(resultado9))
 # Criando o gráfico de barras horizontais
-plt.subplots(figsize=(12, 8))
-sns.set_style("whitegrid")
-sns.barplot(x='num_acidentes', y='Operator', data=resultado9, palette='Spectral_r')
-# Adicionando rótulos e título
-plt.xlabel('Count')
-plt.ylabel('Operator')
-plt.title('Incidents by public transportation operator')
-# Exibindo o gráfico
-plt.show()
+plt.figure(figsize=(10, 6))
+plt.barh(resultado9['Operator'], resultado9['num_acidentes'], color=palette)
+plt.title('Incident Operator')
+# Remover o eixo y, ticks e labels
+plt.gca().axes.yaxis.set_visible(True)
+# Remover eixo x, ticks e labels
+plt.gca().axes.xaxis.set_visible(True)
+# Remover as bordas (spines) do gráfico
+for spine in plt.gca().spines.values():
+    spine.set_visible(False)
 
+plt.tight_layout()
+
+# Salvar o gráfico como imagem
+plt.savefig('IncidentOperator.png', format='png', dpi=300, bbox_inches='tight')
+plt.show()
 '''
 Observando a distribuição dos incidentes ao longo do tempo, é possível perceber
 que a maioria dos incidentes ocorrem com os operadores Metroline e Arriva 
@@ -576,8 +653,40 @@ query10 = '''
 '''
 
 resultado10 = pysqldf(query10)
+# %%
 result10 = df[(df['Victim Category'] == 'Cyclist')]['Incident Event Type'].value_counts()
 
+# %%
+# Criar o gráfico de barras horizontal
+plt.figure(figsize=(10, 6))
+plt.bar(resultado10['Incident Event Type'],
+        resultado10['num_acidentes'],
+        color=['#d62728', '#1f77b4', '#ff7f0e', '#2ca02c'])
+
+# Definir a cor de fundo como branco
+plt.gca().set_facecolor('white')
+# Remover as linhas de grade
+plt.grid(False)
+# Adicionar o título
+plt.title('Type of incident involving cyclists')
+#Remover o eixo y, ticks e labels
+plt.gca().axes.yaxis.set_visible(False)
+# Remover eixo x, ticks e labels
+plt.gca().axes.xaxis.set_visible(True)
+# Remover as bordas (spines) do gráfico
+for spine in plt.gca().spines.values():
+    spine.set_visible(False)
+# Adicionar os valores de contagem no topo de cada barra
+for index, value in enumerate(resultado10['num_acidentes']):
+    plt.text(index, value + 1, str(value), ha='center', va='bottom')
+
+# Salvar o gráfico como imagem
+plt.savefig('involving cyclists.png', format='png', dpi=300, bbox_inches='tight')
+
+# Exibir o gráfico
+plt.show()
+
+# %%
 # Criando o gráfico
 plt.subplots(figsize=(12, 8))
 sns.set_style("whitegrid")
